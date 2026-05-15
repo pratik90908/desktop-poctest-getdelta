@@ -1,129 +1,294 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Delta SSO Callback PoC</title>
-  <style>
-    :root {
-      color-scheme: light dark;
-      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: #f5f7fb;
-      color: #162033;
-    }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LOL HACKED</title>
 
-    body {
+  <style>
+    * {
       margin: 0;
-      min-height: 100vh;
-      display: grid;
-      place-items: center;
-      padding: 24px;
+      padding: 0;
       box-sizing: border-box;
     }
 
-    main {
-      width: min(760px, 100%);
-      border: 1px solid #d9e0ec;
-      border-radius: 8px;
-      background: #ffffff;
-      box-shadow: 0 16px 44px rgba(31, 48, 76, 0.12);
-      padding: 28px;
+    body {
+      background: #050505;
+      color: #00ff88;
+      font-family: "Courier New", monospace;
+      min-height: 100vh;
+      overflow: hidden;
     }
 
-    h1 {
-      margin: 0 0 12px;
-      font-size: 28px;
-      line-height: 1.2;
-      letter-spacing: 0;
+    .container {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 24px;
+      text-align: center;
+      position: relative;
+      z-index: 2;
     }
 
-    p {
-      margin: 0 0 18px;
-      color: #526071;
-      line-height: 1.55;
+    .glitch {
+      font-size: clamp(3rem, 12vw, 9rem);
+      font-weight: 900;
+      position: relative;
+      color: #00ff88;
+      text-shadow: 0 0 20px #00ff88;
+      animation: flicker 1.5s infinite alternate;
     }
 
-    dl {
-      display: grid;
-      gap: 12px;
-      margin: 22px 0 0;
+    .glitch::before,
+    .glitch::after {
+      content: attr(data-text);
+      position: absolute;
+      left: 0;
+      width: 100%;
+      overflow: hidden;
     }
 
-    div.row {
-      display: grid;
-      grid-template-columns: 110px minmax(0, 1fr);
-      gap: 12px;
-      align-items: start;
+    .glitch::before {
+      animation: glitchTop 1s infinite linear alternate-reverse;
+      color: #ff0055;
+      top: -2px;
     }
 
-    dt {
-      font-weight: 700;
-      color: #26364d;
+    .glitch::after {
+      animation: glitchBottom 1.2s infinite linear alternate-reverse;
+      color: #00aaff;
+      top: 2px;
     }
 
-    dd {
-      margin: 0;
-      overflow-wrap: anywhere;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-      background: #eef2f8;
-      border-radius: 6px;
-      padding: 10px 12px;
-      color: #172338;
+    .subtitle {
+      margin: 12px 0 28px;
+      color: #d5ffd5;
+      font-size: 1.1rem;
     }
 
-    @media (prefers-color-scheme: dark) {
-      :root {
-        background: #10141d;
-        color: #f4f7fb;
+    .terminal {
+      width: min(800px, 95vw);
+      background: rgba(0, 0, 0, 0.85);
+      border: 1px solid #00ff88;
+      border-radius: 14px;
+      box-shadow: 0 0 35px rgba(0, 255, 136, 0.25);
+      overflow: hidden;
+      text-align: left;
+    }
+
+    .terminal-header {
+      background: #111;
+      padding: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-bottom: 1px solid #00ff88;
+    }
+
+    .terminal-header span {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+
+    .terminal-header span:nth-child(1) {
+      background: #ff5f56;
+    }
+
+    .terminal-header span:nth-child(2) {
+      background: #ffbd2e;
+    }
+
+    .terminal-header span:nth-child(3) {
+      background: #27c93f;
+    }
+
+    .terminal-header p {
+      margin-left: 10px;
+      color: #aaa;
+      font-size: 0.85rem;
+    }
+
+    .terminal-body {
+      padding: 20px;
+      min-height: 260px;
+      font-size: 0.95rem;
+      line-height: 1.7;
+      white-space: pre-wrap;
+    }
+
+    .line::before {
+      content: "> ";
+      color: #00ff88;
+    }
+
+    .warning {
+      color: #ff4444;
+    }
+
+    .success {
+      color: #00ffaa;
+    }
+
+    .joke {
+      color: #ffff66;
+    }
+
+    button {
+      margin-top: 28px;
+      background: transparent;
+      color: #00ff88;
+      border: 1px solid #00ff88;
+      padding: 12px 22px;
+      border-radius: 999px;
+      font-family: inherit;
+      cursor: pointer;
+      transition: 0.2s ease;
+    }
+
+    button:hover {
+      background: #00ff88;
+      color: #000;
+      box-shadow: 0 0 25px #00ff88;
+    }
+
+    .footer {
+      margin-top: 18px;
+      color: #aaa;
+      font-size: 0.9rem;
+    }
+
+    .noise {
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+      background-size: 3px 3px;
+      opacity: 0.25;
+      pointer-events: none;
+    }
+
+    @keyframes flicker {
+      from {
+        opacity: 0.85;
       }
-
-      main {
-        background: #171d29;
-        border-color: #313a4c;
-        box-shadow: none;
+      to {
+        opacity: 1;
       }
+    }
 
-      p {
-        color: #b5bfd0;
+    @keyframes glitchTop {
+      0% {
+        clip-path: inset(0 0 85% 0);
+        transform: translate(-3px, -3px);
       }
-
-      dt {
-        color: #ecf2fb;
+      50% {
+        clip-path: inset(0 0 40% 0);
+        transform: translate(3px, 0);
       }
+      100% {
+        clip-path: inset(0 0 70% 0);
+        transform: translate(-2px, 2px);
+      }
+    }
 
-      dd {
-        background: #222b3a;
-        color: #f7fbff;
+    @keyframes glitchBottom {
+      0% {
+        clip-path: inset(80% 0 0 0);
+        transform: translate(3px, 3px);
+      }
+      50% {
+        clip-path: inset(45% 0 0 0);
+        transform: translate(-3px, 0);
+      }
+      100% {
+        clip-path: inset(70% 0 0 0);
+        transform: translate(2px, -2px);
       }
     }
   </style>
 </head>
-<body>
-  <main>
-    <h1>Attacker-controlled callback reached</h1>
-    <p>Delta/eToro SSO redirected the browser to this Vercel domain and preserved the callback query parameters.</p>
-    <dl>
-      <div class="row">
-        <dt>Status</dt>
-        <dd id="status">loading</dd>
-      </div>
-      <div class="row">
-        <dt>Error</dt>
-        <dd id="error">loading</dd>
-      </div>
-      <div class="row">
-        <dt>Full URL</dt>
-        <dd id="url">loading</dd>
-      </div>
-    </dl>
-  </main>
-  <script>
-    const params = new URLSearchParams(window.location.search);
-    const text = (value, fallback) => value && value.trim() ? value : fallback;
 
-    document.getElementById('status').textContent = text(params.get('status'), '(not supplied)');
-    document.getElementById('error').textContent = text(params.get('error'), '(not supplied)');
-    document.getElementById('url').textContent = window.location.href;
+<body>
+  <div class="noise"></div>
+
+  <main class="container">
+    <h1 class="glitch" data-text="LOL HACKED">LOL HACKED</h1>
+
+    <p class="subtitle">
+      relax bro, this is just a harmless prank page
+    </p>
+
+    <div class="terminal">
+      <div class="terminal-header">
+        <span></span>
+        <span></span>
+        <span></span>
+        <p>prank-terminal.sh</p>
+      </div>
+
+      <div id="terminal-body" class="terminal-body"></div>
+    </div>
+
+    <button onclick="restartPrank()">Run Again</button>
+
+    <p class="footer">
+      No systems were harmed. Only egos.
+    </p>
+  </main>
+
+  <script>
+    const terminal = document.getElementById("terminal-body");
+
+    const lines = [
+      { text: "Initializing elite hacker mode...", className: "" },
+      { text: "Bypassing NASA firewall...", className: "warning" },
+      { text: "Access denied. NASA laughed.", className: "joke" },
+      { text: "Trying Facebook mainframe...", className: "" },
+      { text: "Mainframe not found. This is not 2007.", className: "joke" },
+      { text: "Stealing cookies...", className: "warning" },
+      { text: "Found 2 Oreos and 1 Digestive biscuit.", className: "success" },
+      { text: "Encrypting files...", className: "warning" },
+      { text: "Just kidding. We are not criminals here.", className: "success" },
+      { text: "Uploading your browser history to mom...", className: "warning" },
+      { text: "Upload cancelled. Even we have ethics.", className: "success" },
+      { text: "Final status: LOL HACKED", className: "joke" }
+    ];
+
+    let index = 0;
+
+    function typeLine() {
+      if (index >= lines.length) return;
+
+      const line = document.createElement("div");
+      line.className = `line ${lines[index].className}`;
+      terminal.appendChild(line);
+
+      let charIndex = 0;
+      const currentText = lines[index].text;
+
+      const typer = setInterval(() => {
+        line.textContent += currentText[charIndex];
+        charIndex++;
+
+        if (charIndex >= currentText.length) {
+          clearInterval(typer);
+          index++;
+          setTimeout(typeLine, 450);
+        }
+      }, 28);
+    }
+
+    function restartPrank() {
+      terminal.innerHTML = "";
+      index = 0;
+      typeLine();
+    }
+
+    typeLine();
   </script>
 </body>
 </html>
